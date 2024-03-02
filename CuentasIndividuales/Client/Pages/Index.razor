@@ -1,0 +1,47 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Authorization
+@inject HttpClient Http
+@using System.Net.Http.Headers;
+@inject IJSRuntime JS
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+
+<AuthorizeView Roles="User">
+    <Authorized>
+        <p>Puedes ver esto porque estas autorizado</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>No estas autorizado para ver esto</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+<button @onclick=Peticion>Solicitar</button>
+
+@foreach(var i in listado)
+{
+    <b>@i.NombreUsuario</b>
+}
+@code {
+    public static List<Usuario> listado = new List<Usuario>();
+    string token = "";
+    async Task Peticion()
+    {
+        token = await JS.InvokeAsync<string>("localStorage.getItem", "Token");
+
+        Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var usuarios = await Http.GetFromJsonAsync<List<Usuario>>("api/Usuario/Datos");
+        if (usuarios != null)
+        {
+            listado = usuarios;
+        }
+    }
+}
+
+

@@ -1,0 +1,42 @@
+﻿@page "/fetchdata"
+@inject HttpClient Http
+@inject IJSRuntime JS
+@inject AuthenticationStateProvider AuthStateProv
+
+<h1>Inicio de sesion</h1>
+
+<input placeholder="usuario" @bind=usuario.NombreCuenta />
+<input placeholder="Contraseña" @bind=usuario.Password />
+<button class="btn btn-primary" @onclick="Login">Ingresar</button>
+<button class="btn btn-primary" @onclick="logout">Cerrar</button>
+
+@code {
+    UsuarioDTO usuario = new UsuarioDTO();
+    string token = "";
+    async Task Login()
+    {
+        var resultado = await Http.PostAsJsonAsync("api/Usuario/Login", usuario);
+        token = await resultado.Content.ReadAsStringAsync();
+        await GuardarSesion();
+        Console.WriteLine(token);
+    }
+
+    private async Task GuardarSesion()
+    {
+        await JS.InvokeVoidAsync("localStorage.setItem", "Token", token);
+        await ObtenerUsuario();
+        await AuthStateProv.GetAuthenticationStateAsync();
+    }
+    private async Task ObtenerUsuario()
+    {
+        token = await JS.InvokeAsync<string>("localStorage.getItem", "Token");
+        Console.WriteLine(token);
+    }
+
+    async Task logout()
+    {
+        await JS.InvokeVoidAsync("localStorage.removeItem", "Token");
+        await AuthStateProv.GetAuthenticationStateAsync();
+    }
+
+}

@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\CuentasIndividuales.Client.props" />
+</Project>

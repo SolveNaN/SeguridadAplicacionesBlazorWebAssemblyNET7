@@ -1,0 +1,24 @@
+﻿@page "/counter"
+@attribute [Authorize]
+@using CuentasIndividuales.Shared
+@using Microsoft.AspNetCore.Authorization
+@inject HttpClient Http
+
+<h1>Registrar Usuario</h1>
+<input placeholder="Nombre Usuario" @bind=usuario.NombreUsuario />
+<input placeholder="Usuario" @bind=usuario.NombreCuenta />
+<input placeholder="Rol" @bind=usuario.Rol />
+<input placeholder="Clave" @bind=usuario.Password />
+
+<button class="btn btn-primary" @onclick="Registrar">Reistrar</button>
+<h3>@mensaje</h3>
+@code {
+    UsuarioDTO usuario = new UsuarioDTO();
+    string mensaje = "";
+    async Task Registrar()
+    {
+        var resultado = await Http.PostAsJsonAsync("api/Usuario/Registrar", usuario);
+        mensaje = await resultado.Content.ReadAsStringAsync();
+        // Console.WriteLine(resultado);
+    }
+}
